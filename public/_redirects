@@ -1,6 +1,2 @@
-# Proxy Supabase API calls through Netlify CDN (for China access)
-/rest/v1/*    https://xsouqeqcstyolopmttp.supabase.co/rest/v1/:splat    200
-/auth/v1/*    https://xsouqeqcstyolopmttp.supabase.co/auth/v1/:splat    200
-
 # SPA fallback - must be last
 /*    /index.html   200
