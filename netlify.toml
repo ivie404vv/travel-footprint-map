@@ -4,7 +4,21 @@
   command = "npm run build"
   publish = "dist"
 
-# SPA fallback
+[functions]
+  directory = "netlify/functions"
+
+# Proxy Supabase API through Netlify Function (for China access)
+[[redirects]]
+  from = "/rest/v1/*"
+  to = "/.netlify/functions/supabase-proxy"
+  status = 200
+
+[[redirects]]
+  from = "/auth/v1/*"
+  to = "/.netlify/functions/supabase-proxy"
+  status = 200
+
+# SPA fallback - must be LAST
 [[redirects]]
   from = "/*"
   to = "/index.html"

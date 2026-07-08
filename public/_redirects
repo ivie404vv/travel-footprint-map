@@ -1,3 +1,0 @@
-# Proxy Supabase API through Netlify CDN
-/rest/v1/*  https://xsouqeqcstyolopmttp.supabase.co/rest/v1/:splat  200
-/auth/v1/*  https://xsouqeqcstyolopmttp.supabase.co/auth/v1/:splat  200
