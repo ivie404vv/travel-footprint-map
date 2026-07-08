@@ -1,22 +1,16 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
-  "headers": [
+  "rewrites": [
+    {
+      "source": "/rest/v1/:path*",
+      "destination": "https://xsouqeqcstyolopmttp.supabase.co/rest/v1/:path*"
+    },
+    {
+      "source": "/auth/v1/:path*",
+      "destination": "https://xsouqeqcstyolopmttp.supabase.co/auth/v1/:path*"
+    },
     {
       "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        }
-      ]
+      "destination": "/index.html"
     }
   ]
 }
