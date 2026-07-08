@@ -6,19 +6,21 @@
 
 [functions]
   directory = "netlify/functions"
+  node_bundler = "esbuild"
 
 # Proxy Supabase API calls through Netlify Functions (for China access)
+# Must be listed BEFORE the SPA fallback
 [[redirects]]
   from = "/rest/v1/*"
-  to = "/.netlify/functions/supabase-proxy/rest/v1/:splat"
+  to = "/.netlify/functions/supabase-proxy"
   status = 200
 
 [[redirects]]
   from = "/auth/v1/*"
-  to = "/.netlify/functions/supabase-proxy/auth/v1/:splat"
+  to = "/.netlify/functions/supabase-proxy"
   status = 200
 
-# SPA fallback - must be last
+# SPA fallback - must be LAST
 [[redirects]]
   from = "/*"
   to = "/index.html"

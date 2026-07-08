@@ -4,15 +4,19 @@
 const SUPABASE_URL = "https://xsouqeqcstyolopmttp.supabase.co";
 
 exports.handler = async (event) => {
-  // Extract the API path from the rewritten URL
-  // netlify.toml rewrites /rest/v1/xxx to /.netlify/functions/supabase-proxy/rest/v1/xxx
-  const path = event.path.replace("/.netlify/functions/supabase-proxy", "");
-
-  // Build full Supabase URL with query params
-  let url = `${SUPABASE_URL}${path}`;
-  if (event.rawQuery) {
-    url += `?${event.rawQuery}`;
+  // Extract the original path from the raw URL
+  // netlify.toml rewrites /rest/v1/xxx -> /.netlify/functions/supabase-proxy
+  // but event.rawUrl still contains the original requested URL
+  let path = "/";
+  try {
+    const parsed = new URL(event.rawUrl);
+    path = parsed.pathname + (parsed.search || "");
+  } catch {
+    // Fallback: reconstruct from path
+    path = event.path;
   }
+
+  const url = `${SUPABASE_URL}${path}`;
 
   // Forward headers, filtering out host-specific and Netlify-internal ones
   const headers = {};
@@ -34,20 +38,18 @@ exports.handler = async (event) => {
       headers: headers,
     };
 
-    // Include body for non-GET/HEAD requests
     const hasBody = event.body && event.httpMethod !== "GET" && event.httpMethod !== "HEAD";
     if (hasBody) {
       fetchOptions.body = event.isBase64Encoded
-        ? Buffer.from(event.body, "base64")
+        ? Buffer.from(event.body, "base64").toString()
         : event.body;
     }
 
     const response = await fetch(url, fetchOptions);
 
-    // Forward response headers (especially Set-Cookie for auth)
+    // Forward response headers
     const responseHeaders = {};
     response.headers.forEach((value, key) => {
-      // Skip transfer-encoding as Netlify will handle it
       if (key.toLowerCase() !== "transfer-encoding") {
         responseHeaders[key] = value;
       }
