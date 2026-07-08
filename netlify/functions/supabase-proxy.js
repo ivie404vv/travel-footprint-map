@@ -6,6 +6,20 @@ const https = require("https");
 const SUPABASE_HOST = "xsouqeqcstyolopmttpr.supabase.co";
 
 exports.handler = async (event) => {
+  // Handle CORS preflight
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 204,
+      headers: {
+        "access-control-allow-origin": "*",
+        "access-control-allow-methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+        "access-control-allow-headers": "authorization, x-client-info, apikey, content-type, prefer",
+        "access-control-max-age": "86400",
+      },
+      body: "",
+    };
+  }
+
   // Extract original path from rawUrl
   let apiPath = "/rest/v1/";
   if (event.rawUrl) {
@@ -45,15 +59,23 @@ exports.handler = async (event) => {
       let body = "";
       res.on("data", (chunk) => (body += chunk));
       res.on("end", () => {
-        // Forward response headers
+        // Forward response headers, handling multi-value headers properly
         const responseHeaders = {};
         for (const [key, value] of Object.entries(res.headers)) {
-          if (key.toLowerCase() !== "transfer-encoding") {
-            responseHeaders[key] = value;
-          }
+          const lowerKey = key.toLowerCase();
+          if (lowerKey === "transfer-encoding") continue;
+
+          // Node.js http module stores set-cookie as array; Netlify needs it as
+          // comma-separated string for multi-value headers
+          responseHeaders[key] = Array.isArray(value) ? value.join(", ") : value;
         }
         // Ensure CORS
         responseHeaders["access-control-allow-origin"] = "*";
+        responseHeaders["access-control-allow-credentials"] = "true";
+
+        // If request has Authorization header, expose it
+        responseHeaders["access-control-allow-headers"] =
+          "authorization, x-client-info, apikey, content-type";
 
         resolve({
           statusCode: res.statusCode || 200,
