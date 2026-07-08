@@ -20,7 +20,9 @@ dist/
 Thumbs.db
 
 # Local database (legacy, no longer used)
-data/
+/data/
+
+# but allow src/data/ (cities database, sample data)
 
 # Vite timestamp cache
 vite.config.ts.timestamp-*.mjs
