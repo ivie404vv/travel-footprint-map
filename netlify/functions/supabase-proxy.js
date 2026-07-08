@@ -3,7 +3,7 @@
 
 const https = require("https");
 
-const SUPABASE_HOST = "xsouqeqcstyolopmttp.supabase.co";
+const SUPABASE_HOST = "xsouqeqcstyolopmttpr.supabase.co";
 
 exports.handler = async (event) => {
   // Extract original path from rawUrl

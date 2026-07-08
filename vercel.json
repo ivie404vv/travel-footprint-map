@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/rest/v1/:path*",
-      "destination": "https://xsouqeqcstyolopmttp.supabase.co/rest/v1/:path*"
+      "destination": "https://xsouqeqcstyolopmttpr.supabase.co/rest/v1/:path*"
     },
     {
       "source": "/auth/v1/:path*",
-      "destination": "https://xsouqeqcstyolopmttp.supabase.co/auth/v1/:path*"
+      "destination": "https://xsouqeqcstyolopmttpr.supabase.co/auth/v1/:path*"
     },
     {
       "source": "/(.*)",
