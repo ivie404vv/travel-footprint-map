@@ -7,12 +7,14 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
 
     if (password !== passwordConfirm) {
       setError('两次输入的密码不一致');
@@ -27,20 +29,34 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const { error: authError } = await supabase.auth.signUp({
+      const { data, error: authError } = await supabase.auth.signUp({
         email: email.trim(),
         password,
       });
 
       if (authError) throw authError;
 
-      // Supabase 注册成功（可能需要邮箱验证，取决于项目设置）
-      navigate('/app', { replace: true });
-    } catch (err: any) {
-      if (err.message?.includes('already registered')) {
-        setError('该邮箱已被注册');
+      // 检查是否返回了 session
+      // session 为 null 说明需要邮箱验证（Supabase 默认开启）
+      if (data.session) {
+        // 邮箱验证已关闭，直接登录成功
+        navigate('/app', { replace: true });
+      } else if (data.user) {
+        // 需要邮箱验证 — 显示成功提示
+        setSuccess(`注册成功！我们已向 ${email.trim()} 发送了验证邮件，请查收并点击验证链接后重新登录。`);
       } else {
-        setError(err.message || '注册失败');
+        setError('注册失败，请稍后重试');
+      }
+    } catch (err: any) {
+      const msg = err.message || '';
+      if (msg.includes('already registered') || msg.includes('already exists')) {
+        setError('该邮箱已被注册，请直接登录或使用其他邮箱');
+      } else if (msg.includes('rate') || msg.includes('too many')) {
+        setError('请求过于频繁，请稍后再试');
+      } else if (msg.includes('signups not allowed')) {
+        setError('当前不允许新注册，请联系管理员');
+      } else {
+        setError(msg || '注册失败，请检查网络后重试');
       }
     } finally {
       setLoading(false);
@@ -98,6 +114,15 @@ export default function RegisterPage() {
           {error && (
             <div className="px-4 py-2.5 bg-red-50 border border-red-100 rounded-xl text-red-500 text-xs text-center">
               {error}
+            </div>
+          )}
+
+          {success && (
+            <div className="px-4 py-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-xs leading-relaxed">
+              <div className="flex items-start gap-2">
+                <span className="text-base mt-0.5 shrink-0">📧</span>
+                <span>{success}</span>
+              </div>
             </div>
           )}
 

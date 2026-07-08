@@ -23,9 +23,14 @@ export default function LoginPage() {
       if (authError) throw authError;
       navigate('/app', { replace: true });
     } catch (err: any) {
-      setError(err.message === 'Invalid login credentials'
-        ? '邮箱或密码错误'
-        : err.message || '登录失败');
+      const msg = err.message || '';
+      if (msg.includes('Email not confirmed') || msg.includes('email_not_confirmed')) {
+        setError('邮箱尚未验证，请查收验证邮件并点击验证链接');
+      } else if (msg === 'Invalid login credentials') {
+        setError('邮箱或密码错误');
+      } else {
+        setError(msg || '登录失败');
+      }
     } finally {
       setLoading(false);
     }
